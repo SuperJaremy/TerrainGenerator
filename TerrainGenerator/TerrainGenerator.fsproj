@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="DiamondSquare.fs" />
+        <Compile Include="CellularAutomaton.fs" />
+        <Compile Include="SimplexNoise.fs" />
+        <Compile Include="Tiles.fs" />
+        <Compile Include="LandWaterSplice.fs" />
+        <Compile Include="BiomeGeneration.fs" />
+        <Compile Include="TerrainGeneration.fs" />
+        <Compile Include="Program.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="SimplexNoise" Version="2.0.0" />
+    </ItemGroup>
+
+</Project>
