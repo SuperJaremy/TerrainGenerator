@@ -3,5 +3,5 @@
 open System
 open TerrainGenerator
 
-printfn "%A" (CellularAutomaton.generateDualWhiteNoise 0.5 5 (Random()))
+printfn "%A" (CellularAutomaton.generateDualWhiteNoise 0.5 5 128)
 

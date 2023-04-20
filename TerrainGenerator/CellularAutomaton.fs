@@ -77,7 +77,8 @@ let rec generateMap stepCnt transformer initMap =
         let afterTransform = step transformer initMap
         generateMap (stepCnt - 1) transformer afterTransform
 
-let generateDualWhiteNoise (ratio: float) sideSize (rng: Random) =
+let generateDualWhiteNoise (ratio: float) sideSize seed =
+    let rng = Random(seed)
     let size = pown sideSize 2
     let zeroes = floor (ratio * (size |> float)) |> int
 
@@ -87,7 +88,8 @@ let generateDualWhiteNoise (ratio: float) sideSize (rng: Random) =
 
     Array2D.init sideSize sideSize (fun x y -> List.item (x * sideSize + y) values)
 
-let generateWhiteNoise sideSize (rng: Random) =
+let generateWhiteNoise sideSize seed =
+    let rng = Random(seed)
     let size = pown sideSize 2
     let values = List.init size (fun _ -> rng.NextDouble())
 
