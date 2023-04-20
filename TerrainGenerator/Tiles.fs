@@ -9,30 +9,52 @@ type LandWaterTile =
     | Water
 
 type LandTile =
-    | Sand
-    | Rock
-    | Tundra
-    | Forest
-    | Field
     | Snow
+    | Tundra
+    | Bare
+    | Scorched
+    | Taiga
+    | Shrubland
+    | Temperate_Desert
+    | Temperate_Rain_Forest
+    | Temperate_Deciduous_Forest
+    | Grassland
+    | Tropical_Rain_Forest
+    | Tropical_Seasonal_Forest
+    | Subtropical_Desert
+    
 
     member c.weight =
         match c with
-        | Sand -> LandTileWeights.Sand
-        | Rock -> LandTileWeights.Rock
-        | Tundra -> LandTileWeights.Tundra
-        | Forest -> LandTileWeights.Forest
-        | Field -> LandTileWeights.Field
         | Snow -> LandTileWeights.Snow
+        | Tundra -> LandTileWeights.Tundra
+        | Bare -> LandTileWeights.Bare
+        | Scorched -> LandTileWeights.Scorched
+        | Taiga -> LandTileWeights.Taiga
+        | Shrubland -> LandTileWeights.Shrubland
+        | Temperate_Desert -> LandTileWeights.Temperate_Desert
+        | Temperate_Rain_Forest -> LandTileWeights.Temperate_Rain_Forest
+        | Temperate_Deciduous_Forest -> LandTileWeights.Temperate_Deciduous_Forest
+        | Grassland -> LandTileWeights.Grassland
+        | Tropical_Rain_Forest -> LandTileWeights.Tropical_Rain_Forest
+        | Tropical_Seasonal_Forest -> LandTileWeights.Tropical_Seasonal_Forest
+        | Subtropical_Desert -> LandTileWeights.Subtropical_Desert
 
 
 and LandTileWeights =
-    | Sand = 2
-    | Rock = 1
-    | Tundra = 2
-    | Snow = 1
-    | Forest = 3
-    | Field = 4
+    | Snow = 3
+    | Tundra = 1
+    | Bare = 1
+    | Scorched = 1
+    | Taiga = 2
+    | Shrubland = 2
+    | Temperate_Desert = 3
+    | Temperate_Rain_Forest = 1
+    | Temperate_Deciduous_Forest = 2
+    | Grassland = 3
+    | Tropical_Rain_Forest = 2
+    | Tropical_Seasonal_Forest = 2
+    | Subtropical_Desert = 1
 
 let sumWeight = Array.sum (Enum.GetValues typeof<LandTileWeights> :?> int[])
 
@@ -42,11 +64,17 @@ let private landTileProbability (tile: LandTile) =
 
 let tileMeasure =
     [ Snow, landTileProbability Snow ]
-    @ [ Rock, landTileProbability Rock ]
     @ [ Tundra, landTileProbability Tundra ]
-    @ [ Forest, landTileProbability Forest ]
-    @ [ Field, landTileProbability Field ]
-    @ [ Sand, landTileProbability Sand ]
+    @ [ Bare, landTileProbability Bare ]
+    @ [ Scorched, landTileProbability Scorched ]
+    @ [ Taiga, landTileProbability Taiga ]
+    @ [ Shrubland, landTileProbability Shrubland ]
+    @ [ Temperate_Desert, landTileProbability Temperate_Desert ]
+    @ [ Temperate_Rain_Forest, landTileProbability Temperate_Rain_Forest ]
+    @ [ Grassland, landTileProbability Grassland ]
+    @ [ Tropical_Rain_Forest, landTileProbability Tropical_Rain_Forest ]
+    @ [ Tropical_Seasonal_Forest, landTileProbability Tropical_Seasonal_Forest ]
+    @ [ Subtropical_Desert, landTileProbability Subtropical_Desert ]
 
 let private randomSelect =
     let _, b =
@@ -68,7 +96,7 @@ let chooseTile num =
                 let success, t = state
                 let tile, prob = value
                 if success then state else ((num < prob), tile))
-            (false, LandTile.Sand)
+            (false, LandTile.Snow)
             randomSelect
 
     tile

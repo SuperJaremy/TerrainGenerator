@@ -18,4 +18,4 @@ let landWater (ratio: float) factorCalculator map =
         if num < factor then
             Tiles.TerrainTile.Water
         else
-            Tiles.TerrainTile.Land Tiles.LandTile.Field)
+            Tiles.TerrainTile.Land Tiles.LandTile.Grassland)
