@@ -24,6 +24,7 @@ let private squareStep centreCords sideSize (rng: Random) variance map =
 
 let private diamondStep diamondCords sideSize (rng: Random) variance map =
     let mapSideSize = Array2D.length1 map
+
     let diamondStepDot (map: float[,]) diamondCord =
         let rand = rng.NextDouble() * variance - variance / 2.
         let x, y = diamondCord
