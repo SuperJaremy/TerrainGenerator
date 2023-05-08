@@ -1,31 +1,42 @@
 ﻿module TerrainGenerator.CellularAutomaton
 
-let private step (transformer: Option<'a>[,] -> 'a) (map: 'a[,]) =
+let rec private step stepCnt (neighborhoodChooser: int -> int -> 'a array2d -> 'a option seq) (transformer: 'a option seq -> 'a) (map: 'a[,]) =
+    if stepCnt = 0 then
+        map
+    else
+        Array2D.mapi (fun x y _ -> transformer (neighborhoodChooser x y map)) map
+        |> step (stepCnt - 1) neighborhoodChooser transformer
+
+let generateMap stepCnt neighborhoodChooser transformer normalizationFunc initMap =
+    step stepCnt neighborhoodChooser transformer initMap
+    |> normalizationFunc
+
+let eightTilesNeighborhoodWithCell x y map =
     let mapHeight = Array2D.length1 map
     let mapWidth = Array2D.length2 map
-
-    let m =
-        Array2D.init (mapHeight + 2) (mapWidth + 2) (fun x y ->
-            if x = 0 || y = 0 || x >= mapHeight || y >= mapWidth then
-                None
+    let neighborhood =
+        Array2D.init 3 3 (fun _x _y ->
+            let xInMap = x + _x - 1
+            let yInMap = y + _y - 1
+    
+            if
+                xInMap >= 0
+                && xInMap < mapHeight
+                && yInMap >= 0
+                && yInMap < mapWidth
+            then
+                Some map.[xInMap, yInMap]
             else
-                Some map.[(x - 1), (y - 1)])
+                None)
+    neighborhood
+    |> Seq.cast<'a option>
+    
+let eightTilesNeighborhoodWithoutCell x y map =
+    eightTilesNeighborhoodWithCell x y map
+    |> Seq.removeAt 4
 
-    Array2D.mapi (fun x y _ -> transformer m.[x .. (x + 2), y .. (y + 2)]) map
-
-let rec generateMap stepCnt transformer initMap =
-    if stepCnt = 0 then
-        initMap
-    else
-        step transformer initMap |> generateMap (stepCnt - 1) transformer
-
-let private excludeCenter (x: seq<'a>) =
-    x |> Seq.except ([ (Seq.item ((Seq.length x) / 2) x) ] |> Seq.ofList)
-
-let chooseByAverage (cell: Option<float>[,]) =
-    cell
-    |> Seq.cast<Option<float>>
-    |> excludeCenter
+let chooseByAverage (neighbourhood: float option seq) =
+    neighbourhood
     |> Seq.filter Option.isSome
     |> Seq.map Option.get
     |> Seq.average
@@ -39,18 +50,16 @@ let private majorityFolder state value =
     else
         state @ [ (value, 1) ]
 
-let chooseByMajority (cell: Option<'a>[,]) =
-    cell
-    |> Seq.cast
+let chooseByMajority neighborhood =
+    neighborhood
     |> Seq.filter Option.isSome
     |> Seq.map Option.get
     |> Seq.fold majorityFolder []
     |> List.maxBy snd
     |> fst
 
-let chooseByMajorityWithCorner cornerValue (cell: Option<'a>[,]) =
-    cell
-    |> Seq.cast
+let chooseByMajorityWithCorner cornerValue neighborhood =
+    neighborhood
     |> Seq.map (Option.defaultValue cornerValue)
     |> Seq.fold majorityFolder []
     |> List.maxBy snd
