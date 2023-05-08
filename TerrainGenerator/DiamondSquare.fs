@@ -98,15 +98,3 @@ let generateMap mapSideN leftUp leftDown rightUp rightDown variance seed normali
     let centerCords = [ (center, center) ]
     let map = proc map centerCords sideSize rng variance
     normalizationFunc map
-
-let normalizeByAbs map =
-    let seq1 = map |> Seq.cast<float> |> Seq.map Math.Abs
-    let seqMin, seqMax = Seq.min seq1, Seq.max seq1
-    let seqDiff = seqMax - seqMin
-    Array2D.map (fun (value: float) -> (Math.Abs(value) - seqMin) / seqDiff) map
-
-let normalizeBySlide map =
-    let seq1 = map |> Seq.cast<float>
-    let seqMin, seqMax = Seq.min seq1, Seq.max seq1
-    let seqDiff = seqMax - seqMin
-    Array2D.map (fun (value: float) -> (value - seqMin) / seqDiff) map

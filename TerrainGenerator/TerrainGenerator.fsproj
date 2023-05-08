@@ -6,6 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Util.fs" />
         <Compile Include="DiamondSquare.fs" />
         <Compile Include="CellularAutomaton.fs" />
         <Compile Include="SimplexNoise.fs" />
