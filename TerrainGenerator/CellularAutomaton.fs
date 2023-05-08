@@ -1,6 +1,11 @@
 ﻿module TerrainGenerator.CellularAutomaton
 
-let rec private step stepCnt (neighborhoodChooser: int -> int -> 'a array2d -> 'a option seq) (transformer: 'a option seq -> 'a) (map: 'a[,]) =
+let rec private step
+    stepCnt
+    (neighborhoodChooser: int -> int -> 'a array2d -> 'a option seq)
+    (transformer: 'a option seq -> 'a)
+    (map: 'a[,])
+    =
     if stepCnt = 0 then
         map
     else
@@ -8,38 +13,29 @@ let rec private step stepCnt (neighborhoodChooser: int -> int -> 'a array2d -> '
         |> step (stepCnt - 1) neighborhoodChooser transformer
 
 let generateMap stepCnt neighborhoodChooser transformer normalizationFunc initMap =
-    step stepCnt neighborhoodChooser transformer initMap
-    |> normalizationFunc
+    step stepCnt neighborhoodChooser transformer initMap |> normalizationFunc
 
 let eightTilesNeighborhoodWithCell x y map =
     let mapHeight = Array2D.length1 map
     let mapWidth = Array2D.length2 map
+
     let neighborhood =
         Array2D.init 3 3 (fun _x _y ->
             let xInMap = x + _x - 1
             let yInMap = y + _y - 1
-    
-            if
-                xInMap >= 0
-                && xInMap < mapHeight
-                && yInMap >= 0
-                && yInMap < mapWidth
-            then
+
+            if xInMap >= 0 && xInMap < mapHeight && yInMap >= 0 && yInMap < mapWidth then
                 Some map.[xInMap, yInMap]
             else
                 None)
-    neighborhood
-    |> Seq.cast<'a option>
-    
+
+    neighborhood |> Seq.cast<'a option>
+
 let eightTilesNeighborhoodWithoutCell x y map =
-    eightTilesNeighborhoodWithCell x y map
-    |> Seq.removeAt 4
+    eightTilesNeighborhoodWithCell x y map |> Seq.removeAt 4
 
 let chooseByAverage (neighbourhood: float option seq) =
-    neighbourhood
-    |> Seq.filter Option.isSome
-    |> Seq.map Option.get
-    |> Seq.average
+    neighbourhood |> Seq.filter Option.isSome |> Seq.map Option.get |> Seq.average
 
 let private majorityFolder state value =
     let chooser (tag, _) = tag = value
