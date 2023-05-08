@@ -14,26 +14,29 @@ let chooseByAverage (cell: Option<float>[,]) =
     |> Seq.map Option.get
     |> Seq.average
 
-let chooseByMajority cornerValue (cell: Option<'a>[,]) =
-    let ls = List.empty
+let private majorityFolder state value =
+     let chooser (tag, _) = tag = value
 
+     if List.exists chooser state then
+        let _, cnt = List.find chooser state
+        (List.filter (chooser >> not) state) @ [ (value, (cnt + 1)) ]
+     else
+         state @ [ (value, 1) ]
+
+let chooseByMajority (cell: Option<'a>[,]) =
     cell
     |> Seq.cast
-    |> Seq.fold
-        (fun state value ->
-            let a =
-                match value with
-                | None -> cornerValue
-                | Some x -> x
+    |> Seq.filter Option.isSome
+    |> Seq.map Option.get
+    |> Seq.fold majorityFolder []
+    |> List.maxBy snd
+    |> fst
 
-            let chooser (tag, _) = tag = a
-
-            if List.exists chooser state then
-                let _, cnt = List.find chooser state
-                (List.filter (chooser >> not) state) @ [ (a, (cnt + 1)) ]
-            else
-                state @ [ (a, 1) ])
-        ls
+let chooseByMajorityWithCorner cornerValue (cell: Option<'a>[,]) =
+    cell
+    |> Seq.cast
+    |> Seq.map (Option.defaultValue cornerValue)
+    |> Seq.fold majorityFolder []
     |> List.maxBy snd
     |> fst
 
@@ -41,25 +44,6 @@ let private step (transformer: Option<'a>[,] -> 'a) (map: 'a[,]) =
     let mapHeight = Array2D.length1 map
     let mapWidth = Array2D.length2 map
 
-    // Array2D.mapi
-    //     (fun x y _ ->
-    //         let cell =
-    //             Array2D.init 3 3 (fun _x _y ->
-    //                 let xInMap = x + _x - 1
-    //                 let yInMap = y + _y - 1
-    //
-    //                 if
-    //                     xInMap >= 0
-    //                     && xInMap < mapHeight
-    //                     && yInMap >= 0
-    //                     && yInMap < mapWidth
-    //                 then
-    //                     Some map.[xInMap, yInMap]
-    //                 else
-    //                     None)
-    //
-    //         transformer cell)
-    //     map
     let m =
         Array2D.init (mapHeight + 2) (mapWidth + 2) (fun x y ->
             if x = 0 || y = 0 || x >= mapHeight || y >= mapWidth then
@@ -73,7 +57,6 @@ let rec generateMap stepCnt transformer initMap =
     if stepCnt = 0 then
         initMap
     else
-        // initMap |> step transformer |> generateMap (stepCnt - 1) transformer
         let afterTransform = step transformer initMap
         generateMap (stepCnt - 1) transformer afterTransform
 
