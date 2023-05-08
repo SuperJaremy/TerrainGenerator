@@ -108,8 +108,8 @@ type TerrainTile =
     | Land of tile: LandTile
 
 let TerrainTable =
-    [ [ Water; Water; Water; Water; Water; Water ]
+    [ [ Land(Subtropical_Desert); Land(Grassland); Water; Water; Water; Water ]
       (List.map Land [ Subtropical_Desert; Grassland; Tropical_Seasonal_Forest; Tropical_Seasonal_Forest; Tropical_Rain_Forest; Tropical_Rain_Forest ])
       (List.map Land [ Temperate_Desert; Grassland; Grassland; Temperate_Deciduous_Forest; Temperate_Deciduous_Forest; Temperate_Rain_Forest ])
-      (List.map Land [ Temperate_Desert; Temperate_Desert; Shrubland; Shrubland; Taiga; Taiga; Taiga ])
+      (List.map Land [ Temperate_Desert; Temperate_Desert; Shrubland; Shrubland; Taiga; Taiga])
       (List.map Land [ Scorched; Bare; Tundra; Snow; Snow; Snow ]) ]
