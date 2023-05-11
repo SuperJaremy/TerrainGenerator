@@ -76,7 +76,7 @@ let tileMeasure =
     @ [ Tropical_Seasonal_Forest, landTileProbability Tropical_Seasonal_Forest ]
     @ [ Subtropical_Desert, landTileProbability Subtropical_Desert ]
 
-let private randomSelect =
+let private segmentBuilder segment =
     let _, b =
         List.fold
             (fun state value ->
@@ -85,19 +85,19 @@ let private randomSelect =
                 let newSum = sum + num
                 newSum, (l @ [ tile, newSum ]))
             (0, [])
-            tileMeasure
+            segment
 
     b
 
-let chooseTile num =
+let chooseTile num segment =
     let _, tile =
         List.fold
             (fun state value ->
-                let success, t = state
+                let success, _ = state
                 let tile, prob = value
                 if success then state else ((num < prob), tile))
             (false, LandTile.Snow)
-            randomSelect
+            (segmentBuilder segment)
 
     tile
 
