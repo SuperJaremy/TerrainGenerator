@@ -58,6 +58,13 @@ let normalizeByAbs map =
     |> normalizeBySlide
 
 /// <summary>
+/// Blank normalization function
+/// </summary>
+/// <param name="map">Array2D which values to normalize</param>
+let doNotNormalize map =
+    map
+
+/// <summary>
 /// Transform value in range [0,1] to row/line index in table
 /// </summary>
 /// <param name="mapTable">Table to which indexes to transform</param>
