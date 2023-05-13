@@ -1,53 +1,31 @@
-﻿// For more information see https://aka.ms/fsharp-console-apps
+﻿// Usage example
 
+open System
 open TerrainGenerator
 open Visualizer
 
-let n = 11
+let n = 8
 let sideSize = (pown 2 n) + 1
-let variance = 256
-let ratio = 1
-let scale = 0.001f
-let clear = 3
-let seed = 26552
+let variance = 0.01
+let ratio = 0.7
+let scale = 0.01f
+let clean = 3
+let seed = 63281
+let rng = Random(seed)
+let d1 = variance * rng.NextDouble() - (variance / 2.)
+let d2 = variance * rng.NextDouble() - (variance / 2.)
+let d3 = variance * rng.NextDouble() - (variance / 2.)
+let d4 = variance * rng.NextDouble() - (variance / 2.)
 
+let rivers = 11
 
-// seq {0..10} |> Array.ofSeq |> Array.Parallel.iter (fun x ->
-//     let terrain = TerrainGeneration.generateTerrain 9 1024 0.7 0.005f x 102737
-//     let res = Drawer.draw terrain 10
-//     let path = sprintf "C:\Users\SJar\RiderProjects\TerrainGenerator\ss%d.png" x
-//     res.Save(path)
-//     )
+let dsMap =
+      DiamondSquare.generateMap n d1 d2 d3 d4 variance seed Util.normalizeBySlide
+      |> CellularAutomaton.generateMap clean CellularAutomaton.eightTilesNeighborhoodWithoutCell CellularAutomaton.chooseByAverage Util.doNotNormalize
+let snMap = SimplexNoise.generateMap sideSize sideSize scale seed SimplexNoise.normalizeByZeroAndTwoFiftyFive
 
-// for i in 0..10 do
-//     let terrain = TerrainGeneration.generateTerrain 10 1024 0.7 0.005f i 52802
-//     let res = Drawer.draw terrain 10
-//     let path = sprintf "C:\Users\SJar\RiderProjects\TerrainGenerator\ss%d.png" i
-//     res.Save(path)
+let terrainOne = TerrainGeneration.generateTerrainWithLandWaterDivisionAndProbabilityRiverGenerator dsMap ratio Tiles.tileMeasure snMap rivers seed clean
+let terrainTwo = TerrainGeneration.generateTerrainWith2DTableAndElevationMapBasedRiversFromSnowToWater dsMap snMap Tiles.TerrainTable rivers seed clean
 
-// let terrain = TerrainGeneration.generateTerrain n variance ratio scale clear seed
-//
-// let dsMap =
-//      DiamondSquare.generateMap n 0 0 0 0 variance (seed + 1) DiamondSquare.normalizeBySlide
-//      |> Array2D.map (BiomeGeneration.toTableIndexMapper Tiles.TerrainTable false)
-//      
-// let dsMapRes = Drawer.draw Drawer.debugToColor dsMap 10
-//      
-// let snMap =
-//      SimplexNoise.generateMap sideSize sideSize scale seed
-//      |> Array2D.map (BiomeGeneration.toTableIndexMapper Tiles.TerrainTable true)
-//      
-// let snMapRes = Drawer.draw Drawer.debugToColor snMap 10
-// let res = Drawer.draw Drawer.tileToColor terrain 10
-//
-// dsMapRes.Save("C:\Users\SJar\RiderProjects\TerrainGenerator\ds.png")
-// snMapRes.Save("C:\Users\SJar\RiderProjects\TerrainGenerator\sn.png")
-// res.Save("C:\Users\SJar\RiderProjects\TerrainGenerator\ss.png")
-
-let tiles = Array2D.create 129 129 (Tiles.TerrainTile.Land Tiles.LandTile.Grassland)
-
-let river = RiverGenerator.generateRiver 65 65 RiverGenerator.logProbability seed tiles
-
-let riverRes = Drawer.draw Drawer.tileToColor river 10
-
-riverRes.Save("C:\Users\SJar\RiderProjects\TerrainGenerator\\river.png")
+(Drawer.draw Drawer.tileToColor terrainOne 10).Save("C:\Users\SJar\RiderProjects\TerrainGenerator\ss_one.png")
+(Drawer.draw Drawer.tileToColor terrainTwo 10).Save("C:\Users\SJar\RiderProjects\TerrainGenerator\ss_two.png")
