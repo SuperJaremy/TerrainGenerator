@@ -3,19 +3,28 @@
 open System
 
 /// <summary>
+/// Shuffles list using given seed value
+/// </summary>
+/// <param name="list">List to shuffle.</param>
+/// <param name="seed">Seed value used in shuffling</param>
+let shuffleList seed list =
+    let rng = Random(seed)
+    let size = List.length list
+    List.sortBy (fun _ -> rng.Next(1, size)) list
+
+/// <summary>
 /// Generates square Array2D of 1s and 0s
 /// </summary>
 /// <param name="ratio">0s to 1s ratio</param>
 /// <param name="sideSize">Side length of generated Array2D</param>
 /// <param name="seed">Seed used to shuffle values in generated Array2D</param>
 let generateDualWhiteNoise ratio sideSize seed =
-    let rng = Random(seed)
     let size = pown sideSize 2
     let zeroes = floor (ratio * (size |> float)) |> int
 
     let values =
         List.init size (fun x -> if x < zeroes then 0 else 1)
-        |> List.sortBy (fun _ -> rng.Next(1, size))
+        |> shuffleList seed
 
     Array2D.init sideSize sideSize (fun x y -> List.item (x * sideSize + y) values)
 
