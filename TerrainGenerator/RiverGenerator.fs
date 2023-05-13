@@ -8,7 +8,7 @@ type Direction =
     | Left
     | Right
 
-let directionToCoordinate x y direction =
+let private directionToCoordinate x y direction =
     match direction with
     | Up -> (x - 1, y)
     | Down -> (x + 1, y)
@@ -55,7 +55,7 @@ let rec private step (x, y) probabilityFunc velocity direction (rng: Random) (ma
         | _ -> step (directionToCoordinate x y sideTwo) probabilityFunc 1 sideTwo rng map
 
 
-let probabilityRiverGenerator x y probabilityFunc seed (map: Tiles.TerrainTile[,]) =
+let probabilityRiverGenerator probabilityFunc seed x y (map: Tiles.TerrainTile[,]) =
     let rng = Random(seed)
     let rand = rng.NextDouble()
 
@@ -70,7 +70,7 @@ let probabilityRiverGenerator x y probabilityFunc seed (map: Tiles.TerrainTile[,
 
     step (directionToCoordinate x y direction) probabilityFunc 1 direction rng map
 
-let rec private heightMapStep x y visited (heightMap: float[,]) flowChooser (map: Tiles.TerrainTile[,]) =
+let rec private elevationMapStep x y visited (elevationMap: float[,]) flowChooser (map: Tiles.TerrainTile[,]) =
     let mapWidth = Array2D.length2 map
     let mapHeight = Array2D.length1 map
     let left = x, y - 1
@@ -81,7 +81,7 @@ let rec private heightMapStep x y visited (heightMap: float[,]) flowChooser (map
     let leftHeight =
         (Left,
          (if y > 0 && not (List.contains left visited) then
-              Some map.[fst left, snd left], Some heightMap.[fst left, snd left]
+              Some map.[fst left, snd left], Some elevationMap.[fst left, snd left]
          else
               None, None))
         |> fun (a, (b, c)) -> (a, b, c)
@@ -89,7 +89,7 @@ let rec private heightMapStep x y visited (heightMap: float[,]) flowChooser (map
     let rightHeight =
         (Right,
          if y < mapWidth - 1 && not (List.contains right visited) then
-             Some map.[fst right, snd right], Some heightMap.[fst right, snd right]
+             Some map.[fst right, snd right], Some elevationMap.[fst right, snd right]
          else
              None, None)
         |> fun (a, (b, c)) -> (a, b, c)
@@ -97,7 +97,7 @@ let rec private heightMapStep x y visited (heightMap: float[,]) flowChooser (map
     let upHeight =
         (Up,
          (if x > 0 && not (List.contains up visited) then
-              Some map.[fst up, snd up], Some heightMap.[fst up, snd up]
+              Some map.[fst up, snd up], Some elevationMap.[fst up, snd up]
          else
               None, None))
         |> fun (a, (b, c)) -> (a, b, c)
@@ -105,7 +105,7 @@ let rec private heightMapStep x y visited (heightMap: float[,]) flowChooser (map
     let downHeight =
         (Down,
          if x < mapHeight - 1 && not (List.contains down visited) then
-             Some map.[fst down, snd down], Some heightMap.[fst down, snd down]
+             Some map.[fst down, snd down], Some elevationMap.[fst down, snd down]
          else
              None, None)
         |> fun (a, (b, c)) -> (a, b, c)
@@ -123,11 +123,11 @@ let rec private heightMapStep x y visited (heightMap: float[,]) flowChooser (map
     | Some value ->
         let newX, newY = value
         map.[newX, newY] <- Tiles.TerrainTile.Water
-        heightMapStep newX newY (value :: visited) heightMap flowChooser map
+        elevationMapStep newX newY (value :: visited) elevationMap flowChooser map
 
-let heightMapRiverGenerator initX initY (heightMap: float[,]) flowChooser (map: Tiles.TerrainTile[,]) =
+let elevationMapRiverGenerator (elevationMap: float[,]) flowChooser initX initY  (map: Tiles.TerrainTile[,]) =
     map.[initX, initY] <- Tiles.TerrainTile.Water
-    heightMapStep initX initY [] heightMap flowChooser map
+    elevationMapStep initX initY [] elevationMap flowChooser map
 
 let maxFlowChooser endCondition left right up down =
 
@@ -142,7 +142,6 @@ let maxFlowChooser endCondition left right up down =
         None
 
 let minFlowChooser endCondition left right up down =
-    
     
     try
         let dir, tile, value =
@@ -162,3 +161,27 @@ let isWater (_, tile, _) =
     
 let isSnow (_, tile, _) =
     Option.get tile = Tiles.TerrainTile.Land(Tiles.LandTile.Snow)
+
+let blankRiverGenerator _ _ map = map
+
+let rec private generateNRivers generator (rng: Random) rivers points map =
+    if rivers = 0 then
+        map
+    else
+        let rand = rng.Next(0, List.length points)
+        let x, y = List.item rand points
+        generator x y map
+        |> generateNRivers generator rng (rivers - 1) (List.removeAt rand points)
+    
+let generateRivers (generator: int -> int -> Tiles.TerrainTile[,] -> Tiles.TerrainTile[,]) count srcCond seed (map: Tiles.TerrainTile[,]) =
+    let folder x y state elem =
+        if srcCond x y elem then
+            (x, y) :: state
+        else
+            state
+    let possibleSources = Util.foldiArray2D folder [] map
+    let rng = Random(seed)
+    generateNRivers generator rng count possibleSources map
+    
+let generateNoRivers map = map 
+    
