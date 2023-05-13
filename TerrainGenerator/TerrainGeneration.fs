@@ -1,52 +1,29 @@
 ﻿module TerrainGenerator.TerrainGeneration
-
-open System
-
-let generateTerrain n variance ratio scale clean seed =
-    let sideSize = (pown 2 n) + 1
     
-    // let dsMap =
-    //     DiamondSquare.generateMap n (variance * 2.0) (variance / 2.0) 0.0 variance variance seed DiamondSquare.normalizeByAbs
-        // |> CellularAutomaton.generateMap clean CellularAutomaton.chooseByAverage
-    let dsMap =
-        DiamondSquare.generateMap n 0 0 0 0 variance (seed + 1) DiamondSquare.normalizeBySlide
-    // |> CellularAutomaton.step CellularAutomaton.chooseByAverage
-    //
-    let snMap =
-        SimplexNoise.generateMap sideSize sideSize scale seed
-        // |> CellularAutomaton.generateMap clean CellularAutomaton.chooseByAverage
-        
-    // let whiteNoiseMap = CellularAutomaton.generateWhiteNoise sideSize seed
+type TerrainGen =
+    static member generateTerrain(generator: Tiles.TerrainTile[,], [<System.ParamArray>] postGens: (Tiles.TerrainTile[,] -> Tiles.TerrainTile[,]) []) =
+        Array.fold (fun state post -> post state) generator postGens
     
-    // let landWaterMap =
-    //     CellularAutomaton.generateDualWhiteNoise 0.4 sideSize seed
-    //     |> Array2D.map (fun value ->
-    //         match value with
-    //         | 0 -> Tiles.TerrainTile.Water
-    //         | _ -> Tiles.TerrainTile.Land Tiles.LandTile.Grassland)
-        // |> CellularAutomaton.generateMap clean (CellularAutomaton.chooseByMajority Tiles.TerrainTile.Water)
-    // let landWaterMap =
-    //     LandWaterSplice.landWater ratio LandWaterSplice.calcFactorMean dsMap
     
-    // let biomeMap = BiomeGeneration.generateBiomes landWaterMap whiteNoiseMap
+let generateTerrainWith2DTableAndElevationMapBasedRiversFromSnowToWater elevationMap moistureMap mapTable riverCnt seed clean =
+    let biomeGen = BiomeGeneration.generateBiomesFrom2DTable elevationMap moistureMap Util.to2DTableIndexMapper mapTable
+    let snowCond _ _ elem =
+        elem = Tiles.TerrainTile.Land(Tiles.LandTile.Snow)
+    let riverGen = RiverGenerator.generateRivers (RiverGenerator.elevationMapRiverGenerator elevationMap (RiverGenerator.minFlowChooser RiverGenerator.isWater)) riverCnt snowCond seed
+    let cleaner = CellularAutomaton.generateMap clean CellularAutomaton.eightTilesNeighborhoodWithoutCell CellularAutomaton.chooseByMajority Util.doNotNormalize
+    TerrainGen.generateTerrain(biomeGen, cleaner, riverGen)
     
-    // biomeMap
-    // |> CellularAutomaton.generateMap clean (CellularAutomaton.chooseByMajority (Tiles.TerrainTile.Land(Tiles.LandTile.Snow)))
-
-    // let landWater =
-    //     CellularAutomaton.generateWhiteNoise 0.4 129 rng
-    //     |> Array2D.map (fun value ->
-    //         match value with
-    //         | 0 -> Tiles.TerrainTile.Water
-    //         | _ -> Tiles.TerrainTile.Land Tiles.LandTile.Field)
-            // |> Array2D.map float
-    // let transformer = (CellularAutomaton.chooseByMajority Tiles.TerrainTile.Water)
-    // let cellular = CellularAutomaton.generateMap clean transformer landWater
-    // let cellular =
-    //     CellularAutomaton.generateMap clean CellularAutomaton.chooseByAverage landWater
-
-    // cellular
-        // |> LandWaterSplice.landWater 0.6 LandWaterSplice.calcFactorMean
-        
-    BiomeGeneration.generateBiomesFromTable dsMap snMap Tiles.TerrainTable
-        |> CellularAutomaton.generateMap clean (CellularAutomaton.chooseByMajority Tiles.TerrainTile.Water)
+let generateTerrainWithLandWaterDivisionAndProbabilityRiverGenerator landWaterMap waterToLandRatio biomeSegment biomeMap riverCnt seed clean =
+    let landWater = LandWaterSplice.landWater waterToLandRatio LandWaterSplice.calcFactorMed landWaterMap
+    let gen = BiomeGeneration.generateBiomesFromLandWaterMap landWater biomeSegment biomeMap
+    let prg = RiverGenerator.probabilityRiverGenerator RiverGenerator.logProbability seed
+    let points =
+        Util.foldiArray2D (fun x y state elem -> if elem <> Tiles.TerrainTile.Water then (x, y) :: state else state) [] landWater
+        |> Util.shuffleList seed
+        |> List.take riverCnt
+    let randCond x y _ =
+        List.contains (x, y) points
+    let riverGen = RiverGenerator.generateRivers prg riverCnt randCond seed
+    let cleaner = CellularAutomaton.generateMap clean CellularAutomaton.eightTilesNeighborhoodWithoutCell CellularAutomaton.chooseByMajority Util.doNotNormalize
+    TerrainGen.generateTerrain(gen, cleaner, riverGen)
+    
