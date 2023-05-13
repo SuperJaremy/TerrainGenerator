@@ -77,4 +77,18 @@ let to2DTableIndexMapper mapTable isRow toMap =
         toMap * (rows |> float) |> floor |> int |> min (rows - 1)
     else
         toMap * (columns |> float) |> floor |> int |> min (columns - 1)
-        
+      
+/// <summary>
+/// Applies a function to each element of the collection, threading an accumulator argument through the computation. The integer indexes passed to the function indicates the indexes of element being applied, starting at zero.
+/// </summary>
+/// <param name="folder">The function to update the state given the input elements.</param>
+/// <param name="state">The initial state.</param>
+/// <param name="array">The input array2d.</param>
+/// <returns>The final state value.</returns>
+let foldiArray2D (folder: int -> int -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,]) =
+    seq {
+        for x in 0 .. Array2D.length1 array - 1 do
+            for y in 0 .. Array2D.length2 array - 1 do
+                yield (x, y, array.[x, y])
+    }
+    |> Seq.fold (fun acc (x, y, e) -> folder x y acc e) state  
