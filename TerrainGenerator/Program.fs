@@ -1,4 +1,6 @@
-﻿open System
+﻿//Usage example
+
+open System
 open TerrainGenerator
 let n = 8
 let sideSize = (pown 2 n) + 1
