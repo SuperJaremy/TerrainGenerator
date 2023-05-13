@@ -1,4 +1,6 @@
 ﻿module TerrainGenerator.TerrainGeneration
+
+open System
     
 type TerrainGen =
     static member generateTerrain(generator: Tiles.TerrainTile[,], [<System.ParamArray>] postGens: (Tiles.TerrainTile[,] -> Tiles.TerrainTile[,]) []) =
@@ -16,7 +18,7 @@ let generateTerrainWith2DTableAndElevationMapBasedRiversFromSnowToWater elevatio
 let generateTerrainWithLandWaterDivisionAndProbabilityRiverGenerator landWaterMap waterToLandRatio biomeSegment biomeMap riverCnt seed clean =
     let landWater = LandWaterSplice.landWater waterToLandRatio LandWaterSplice.calcFactorMed landWaterMap
     let gen = BiomeGeneration.generateBiomesFromLandWaterMap landWater biomeSegment biomeMap
-    let prg = RiverGenerator.probabilityRiverGenerator RiverGenerator.logProbability seed
+    let prg = RiverGenerator.probabilityRiverGenerator RiverGenerator.logProbability (Random(seed))
     let points =
         Util.foldiArray2D (fun x y state elem -> if elem <> Tiles.TerrainTile.Water then (x, y) :: state else state) [] landWater
         |> Util.shuffleList seed

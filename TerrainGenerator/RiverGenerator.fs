@@ -55,8 +55,7 @@ let rec private step (x, y) probabilityFunc velocity direction (rng: Random) (ma
         | _ -> step (directionToCoordinate x y sideTwo) probabilityFunc 1 sideTwo rng map
 
 
-let probabilityRiverGenerator probabilityFunc seed x y (map: Tiles.TerrainTile[,]) =
-    let rng = Random(seed)
+let probabilityRiverGenerator probabilityFunc (rng: Random) x y (map: Tiles.TerrainTile[,]) =
     let rand = rng.NextDouble()
 
     map.[x, y] <- Tiles.TerrainTile.Water
