@@ -48,21 +48,19 @@ let normalizeBySlide map =
     let seq1 = map |> Seq.cast<float>
     let seqMin, seqMax = Seq.min seq1, Seq.max seq1
     normalizeByMinMax seqMin seqMax map
-    
+
 /// <summary>
 /// Normalize Array2D to [0,1] segment using absolute values
 /// </summary>
 /// <param name="map">Array2D which values to normalize</param>
 let normalizeByAbs map =
-    Array2D.map (fun (value: float) -> Math.Abs(value)) map
-    |> normalizeBySlide
+    Array2D.map (fun (value: float) -> Math.Abs(value)) map |> normalizeBySlide
 
 /// <summary>
 /// Blank normalization function
 /// </summary>
 /// <param name="map">Array2D which values to normalize</param>
-let doNotNormalize map =
-    map
+let doNotNormalize map = map
 
 /// <summary>
 /// Transform value in range [0,1] to row/line index in table
@@ -73,13 +71,15 @@ let doNotNormalize map =
 let to2DTableIndexMapper mapTable isRow toMap =
     let columns = (List.length mapTable)
     let rows = (List.length mapTable.[0])
+
     if isRow then
         toMap * (rows |> float) |> floor |> int |> min (rows - 1)
     else
         toMap * (columns |> float) |> floor |> int |> min (columns - 1)
-      
+
 /// <summary>
-/// Applies a function to each element of the collection, threading an accumulator argument through the computation. The integer indexes passed to the function indicates the indexes of element being applied, starting at zero.
+/// Applies a function to each element of the collection, threading an accumulator argument through the computation.
+/// The integer indexes passed to the function indicates the indexes of element being applied, starting at zero.
 /// </summary>
 /// <param name="folder">The function to update the state given the input elements.</param>
 /// <param name="state">The initial state.</param>
@@ -91,4 +91,4 @@ let foldiArray2D (folder: int -> int -> 'S -> 'T -> 'S) (state: 'S) (array: 'T[,
             for y in 0 .. Array2D.length2 array - 1 do
                 yield (x, y, array.[x, y])
     }
-    |> Seq.fold (fun acc (x, y, e) -> folder x y acc e) state  
+    |> Seq.fold (fun acc (x, y, e) -> folder x y acc e) state
