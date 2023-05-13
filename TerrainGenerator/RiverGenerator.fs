@@ -81,7 +81,7 @@ let rec private elevationMapStep x y visited (elevationMap: float[,]) flowChoose
         (Left,
          (if y > 0 && not (List.contains left visited) then
               Some map.[fst left, snd left], Some elevationMap.[fst left, snd left]
-         else
+          else
               None, None))
         |> fun (a, (b, c)) -> (a, b, c)
 
@@ -97,7 +97,7 @@ let rec private elevationMapStep x y visited (elevationMap: float[,]) flowChoose
         (Up,
          (if x > 0 && not (List.contains up visited) then
               Some map.[fst up, snd up], Some elevationMap.[fst up, snd up]
-         else
+          else
               None, None))
         |> fun (a, (b, c)) -> (a, b, c)
 
@@ -108,7 +108,7 @@ let rec private elevationMapStep x y visited (elevationMap: float[,]) flowChoose
          else
              None, None)
         |> fun (a, (b, c)) -> (a, b, c)
-    
+
     let res =
         match (flowChooser leftHeight rightHeight upHeight downHeight) with
         | Some Left -> Some left
@@ -124,7 +124,7 @@ let rec private elevationMapStep x y visited (elevationMap: float[,]) flowChoose
         map.[newX, newY] <- Tiles.TerrainTile.Water
         elevationMapStep newX newY (value :: visited) elevationMap flowChooser map
 
-let elevationMapRiverGenerator (elevationMap: float[,]) flowChooser initX initY  (map: Tiles.TerrainTile[,]) =
+let elevationMapRiverGenerator (elevationMap: float[,]) flowChooser initX initY (map: Tiles.TerrainTile[,]) =
     map.[initX, initY] <- Tiles.TerrainTile.Water
     elevationMapStep initX initY [] elevationMap flowChooser map
 
@@ -141,7 +141,7 @@ let maxFlowChooser endCondition left right up down =
         None
 
 let minFlowChooser endCondition left right up down =
-    
+
     try
         let dir, tile, value =
             Seq.ofList [ left; right; up; down ]
@@ -152,12 +152,12 @@ let minFlowChooser endCondition left right up down =
             Some dir
         else
             None
-    with
-    | :? ArgumentException -> None
+    with :? ArgumentException ->
+        None
 
 let isWater (_, tile, _) =
     Option.get tile = Tiles.TerrainTile.Water
-    
+
 let isSnow (_, tile, _) =
     Option.get tile = Tiles.TerrainTile.Land(Tiles.LandTile.Snow)
 
@@ -169,18 +169,22 @@ let rec private generateNRivers generator (rng: Random) rivers points map =
     else
         let rand = rng.Next(0, List.length points)
         let x, y = List.item rand points
+
         generator x y map
         |> generateNRivers generator rng (rivers - 1) (List.removeAt rand points)
-    
-let generateRivers (generator: int -> int -> Tiles.TerrainTile[,] -> Tiles.TerrainTile[,]) count srcCond seed (map: Tiles.TerrainTile[,]) =
+
+let generateRivers
+    (generator: int -> int -> Tiles.TerrainTile[,] -> Tiles.TerrainTile[,])
+    count
+    srcCond
+    seed
+    (map: Tiles.TerrainTile[,])
+    =
     let folder x y state elem =
-        if srcCond x y elem then
-            (x, y) :: state
-        else
-            state
+        if srcCond x y elem then (x, y) :: state else state
+
     let possibleSources = Util.foldiArray2D folder [] map
     let rng = Random(seed)
     generateNRivers generator rng count possibleSources map
-    
-let generateNoRivers map = map 
-    
+
+let generateNoRivers map = map

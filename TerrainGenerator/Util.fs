@@ -23,8 +23,7 @@ let generateDualWhiteNoise ratio sideSize seed =
     let zeroes = floor (ratio * (size |> float)) |> int
 
     let values =
-        List.init size (fun x -> if x < zeroes then 0 else 1)
-        |> shuffleList seed
+        List.init size (fun x -> if x < zeroes then 0 else 1) |> shuffleList seed
 
     Array2D.init sideSize sideSize (fun x y -> List.item (x * sideSize + y) values)
 
