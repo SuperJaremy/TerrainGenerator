@@ -2,7 +2,7 @@
 
 let rec private step
     stepCnt
-    (neighborhoodChooser: int -> int -> 'a array2d -> 'a option seq)
+    (neighborhoodChooser: int -> int -> 'a[,] -> 'a option seq)
     (transformer: 'a option seq -> 'a)
     (map: 'a[,])
     =
