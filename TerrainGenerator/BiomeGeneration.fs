@@ -1,14 +1,16 @@
 ﻿module TerrainGenerator.BiomeGeneration
 
+let generateBiomesFromBiomeSegment mapSegment map =
+    Array2D.mapi (fun _ _ -> Tiles.chooseTile mapSegment) map
 
 let generateBiomesFromLandWaterMap landWaterMap mapSegment (map: float[,]) =
     Array2D.mapi
         (fun x y value ->
             match value with
-            | Tiles.TerrainTile.Water -> value
+            | Tiles.TerrainTile.Water _ -> value
             | Tiles.TerrainTile.Land _ ->
                 let biomeNum = map.[x, y]
-                Tiles.TerrainTile.Land(Tiles.chooseTile biomeNum mapSegment))
+                Tiles.chooseTile mapSegment biomeNum)
         landWaterMap
 
 let generateBiomesFrom2DTable

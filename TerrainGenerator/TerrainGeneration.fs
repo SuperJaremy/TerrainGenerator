@@ -64,12 +64,40 @@ let generateTerrainWithLandWaterDivisionAndProbabilityRiverGenerator
     let points =
         Util.foldiArray2D
             (fun x y state elem ->
-                if elem <> Tiles.TerrainTile.Water then
-                    (x, y) :: state
-                else
-                    state)
+                match elem with
+                | Tiles.TerrainTile.Land _ -> (x,y) :: state
+                | _ -> state)
             []
             landWater
+        |> Util.shuffleList seed
+        |> List.take riverCnt
+
+    let randCond x y _ = List.contains (x, y) points
+    let riverGen = RiverGenerator.generateRivers prg riverCnt randCond seed
+
+    let cleaner =
+        CellularAutomaton.generateMap
+            clean
+            CellularAutomaton.eightTilesNeighborhoodWithoutCell
+            CellularAutomaton.chooseByMajority
+            Util.doNotNormalize
+
+    TerrainGen.generateTerrain (gen, cleaner, riverGen)
+
+let generateTerrainWithBiomeSegmentAndProbabilityRiverGenerator biomeSegment biomeMap riverCnt seed clean =
+    let gen = BiomeGeneration.generateBiomesFromBiomeSegment biomeSegment biomeMap
+    
+    let prg =
+        RiverGenerator.probabilityRiverGenerator RiverGenerator.logProbability (Random(seed))
+
+    let points =
+        Util.foldiArray2D
+            (fun x y state elem ->
+                match elem with
+                | Tiles.TerrainTile.Land _ -> (x,y) :: state
+                | _ -> state)
+            []
+            gen
         |> Util.shuffleList seed
         |> List.take riverCnt
 

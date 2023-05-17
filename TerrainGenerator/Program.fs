@@ -22,5 +22,6 @@ let dsMap =
       |> CellularAutomaton.generateMap clean CellularAutomaton.eightTilesNeighborhoodWithoutCell CellularAutomaton.chooseByAverage Util.doNotNormalize
 let snMap = SimplexNoise.generateMap sideSize sideSize scale seed SimplexNoise.normalizeByZeroAndTwoFiftyFive
 
-let terrainOne = TerrainGeneration.generateTerrainWithLandWaterDivisionAndProbabilityRiverGenerator dsMap ratio Tiles.tileMeasure snMap rivers seed clean
-let terrainTwo = TerrainGeneration.generateTerrainWith2DTableAndElevationMapBasedRiversFromSnowToWater dsMap snMap Tiles.TerrainTable rivers seed clean
+let terrainOne = TerrainGeneration.generateTerrainWithBiomeSegmentAndProbabilityRiverGenerator Tiles.biomeSegment snMap rivers seed clean
+let terrainTwo = TerrainGeneration.generateTerrainWithLandWaterDivisionAndProbabilityRiverGenerator dsMap ratio Tiles.landSegment snMap rivers seed clean
+let terrainThree = TerrainGeneration.generateTerrainWith2DTableAndElevationMapBasedRiversFromSnowToWater dsMap snMap Tiles.TerrainTable rivers seed clean

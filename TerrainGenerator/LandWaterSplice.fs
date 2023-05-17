@@ -6,7 +6,7 @@ let landWater (ratio: float) factorCalculator map =
     map
     |> Array2D.map (fun num ->
         if num < factor then
-            Tiles.TerrainTile.Water
+            Tiles.TerrainTile.Water Tiles.WaterTile.Water
         else
             Tiles.TerrainTile.Land Tiles.LandTile.Grassland)
 

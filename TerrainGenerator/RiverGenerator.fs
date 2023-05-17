@@ -29,12 +29,12 @@ let rec private step (x, y) probabilityFunc velocity direction (rng: Random) (ma
             && x < mapHeight
             && y > 0
             && y < mapWidth
-            && map.[x, y] <> Tiles.TerrainTile.Water
+            && map.[x, y] <> Tiles.TerrainTile.Water(Tiles.WaterTile.Water)
         )
     then
         map
     else
-        map.[x, y] <- Tiles.TerrainTile.Water
+        map.[x, y] <- Tiles.TerrainTile.Water(Tiles.WaterTile.Water)
 
         let sideOne, sideTwo =
             match direction with
@@ -58,7 +58,7 @@ let rec private step (x, y) probabilityFunc velocity direction (rng: Random) (ma
 let probabilityRiverGenerator probabilityFunc (rng: Random) x y (map: Tiles.TerrainTile[,]) =
     let rand = rng.NextDouble()
 
-    map.[x, y] <- Tiles.TerrainTile.Water
+    map.[x, y] <- Tiles.TerrainTile.Water(Tiles.WaterTile.Water)
 
     let direction =
         match rand with
@@ -121,11 +121,11 @@ let rec private elevationMapStep x y visited (elevationMap: float[,]) flowChoose
     | None -> map
     | Some value ->
         let newX, newY = value
-        map.[newX, newY] <- Tiles.TerrainTile.Water
+        map.[newX, newY] <- Tiles.TerrainTile.Water(Tiles.WaterTile.Water)
         elevationMapStep newX newY (value :: visited) elevationMap flowChooser map
 
 let elevationMapRiverGenerator (elevationMap: float[,]) flowChooser initX initY (map: Tiles.TerrainTile[,]) =
-    map.[initX, initY] <- Tiles.TerrainTile.Water
+    map.[initX, initY] <- Tiles.TerrainTile.Water(Tiles.WaterTile.Water)
     elevationMapStep initX initY [] elevationMap flowChooser map
 
 let maxFlowChooser endCondition left right up down =
@@ -156,7 +156,7 @@ let minFlowChooser endCondition left right up down =
         None
 
 let isWater (_, tile, _) =
-    Option.get tile = Tiles.TerrainTile.Water
+    Option.get tile = Tiles.TerrainTile.Water(Tiles.WaterTile.Water)
 
 let isSnow (_, tile, _) =
     Option.get tile = Tiles.TerrainTile.Land(Tiles.LandTile.Snow)

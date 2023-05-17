@@ -1,6 +1,5 @@
 ﻿module TerrainGenerator.Tiles
 
-open System
 open Microsoft.FSharp.Collections
 open Microsoft.FSharp.Core
 
@@ -23,58 +22,11 @@ type LandTile =
     | Tropical_Seasonal_Forest
     | Subtropical_Desert
 
+type WaterTile = | Water
 
-    member c.weight =
-        match c with
-        | Snow -> LandTileWeights.Snow
-        | Tundra -> LandTileWeights.Tundra
-        | Bare -> LandTileWeights.Bare
-        | Scorched -> LandTileWeights.Scorched
-        | Taiga -> LandTileWeights.Taiga
-        | Shrubland -> LandTileWeights.Shrubland
-        | Temperate_Desert -> LandTileWeights.Temperate_Desert
-        | Temperate_Rain_Forest -> LandTileWeights.Temperate_Rain_Forest
-        | Temperate_Deciduous_Forest -> LandTileWeights.Temperate_Deciduous_Forest
-        | Grassland -> LandTileWeights.Grassland
-        | Tropical_Rain_Forest -> LandTileWeights.Tropical_Rain_Forest
-        | Tropical_Seasonal_Forest -> LandTileWeights.Tropical_Seasonal_Forest
-        | Subtropical_Desert -> LandTileWeights.Subtropical_Desert
-
-
-and LandTileWeights =
-    | Snow = 3
-    | Tundra = 1
-    | Bare = 1
-    | Scorched = 1
-    | Taiga = 2
-    | Shrubland = 2
-    | Temperate_Desert = 3
-    | Temperate_Rain_Forest = 1
-    | Temperate_Deciduous_Forest = 2
-    | Grassland = 3
-    | Tropical_Rain_Forest = 2
-    | Tropical_Seasonal_Forest = 2
-    | Subtropical_Desert = 1
-
-let sumWeight = Array.sum (Enum.GetValues typeof<LandTileWeights> :?> int[])
-
-let private landTileProbability (tile: LandTile) =
-    let unit = 1.0 / (sumWeight |> float)
-    (tile.weight |> float) * unit
-
-let tileMeasure =
-    [ Snow, landTileProbability Snow ]
-    @ [ Tundra, landTileProbability Tundra ]
-    @ [ Bare, landTileProbability Bare ]
-    @ [ Scorched, landTileProbability Scorched ]
-    @ [ Taiga, landTileProbability Taiga ]
-    @ [ Shrubland, landTileProbability Shrubland ]
-    @ [ Temperate_Desert, landTileProbability Temperate_Desert ]
-    @ [ Temperate_Rain_Forest, landTileProbability Temperate_Rain_Forest ]
-    @ [ Grassland, landTileProbability Grassland ]
-    @ [ Tropical_Rain_Forest, landTileProbability Tropical_Rain_Forest ]
-    @ [ Tropical_Seasonal_Forest, landTileProbability Tropical_Seasonal_Forest ]
-    @ [ Subtropical_Desert, landTileProbability Subtropical_Desert ]
+type TerrainTile =
+    | Water of tile: WaterTile
+    | Land of tile: LandTile
 
 let private segmentBuilder segment =
     let _, b =
@@ -89,26 +41,39 @@ let private segmentBuilder segment =
 
     b
 
-let chooseTile num segment =
+let private toProbabilityList segment =
+    let biomeSum = List.sumBy snd segment
+    List.map (fun (x, y) -> x, (y / (biomeSum |> float))) segment
+    |> segmentBuilder
+    
+let chooseTile segment num =
     let _, tile =
         List.fold
             (fun state value ->
                 let success, _ = state
                 let tile, prob = value
                 if success then state else ((num < prob), tile))
-            (false, LandTile.Snow)
-            (segmentBuilder segment)
+            (false, TerrainTile.Land(LandTile.Snow))
+            (toProbabilityList segment)
 
     tile
+    
+let biomeSegment =
+    [ TerrainTile.Water(WaterTile.Water), 2.
+      TerrainTile.Land(LandTile.Grassland), 3.
+      TerrainTile.Land(LandTile.Tropical_Seasonal_Forest), 3.
+      TerrainTile.Land(LandTile.Tundra), 2.
+      TerrainTile.Land(LandTile.Snow), 1. ]
 
-type WaterTile = | Water
-
-type TerrainTile =
-    | Water
-    | Land of tile: LandTile
+let landSegment =
+    [TerrainTile.Land(LandTile.Subtropical_Desert), 2.
+     TerrainTile.Land(LandTile.Grassland), 3.
+     TerrainTile.Land(LandTile.Tropical_Seasonal_Forest), 3.
+     TerrainTile.Land(LandTile.Tundra), 2.
+     TerrainTile.Land(LandTile.Snow), 1.]
 
 let TerrainTable =
-    [ [ Land(Subtropical_Desert); Land(Grassland); Water; Water; Water; Water ]
+    [ [ Land(Subtropical_Desert); Land(Grassland); Water(WaterTile.Water); Water(WaterTile.Water); Water(WaterTile.Water); Water(WaterTile.Water) ]
       (List.map
           Land
           [ Subtropical_Desert

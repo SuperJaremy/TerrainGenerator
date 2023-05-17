@@ -6,7 +6,7 @@ open TerrainGenerator.Tiles
 
 let tileToColor (tile: TerrainTile) =
     match tile with
-    | TerrainTile.Water -> Color.Aqua
+    | TerrainTile.Water _ -> Color.Aqua
     | TerrainTile.Land biome ->
         match biome with
         | LandTile.Snow -> Color.White
