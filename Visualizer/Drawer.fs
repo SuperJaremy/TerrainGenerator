@@ -22,7 +22,7 @@ let tileToColor (tile: TerrainTile) =
         | LandTile.Tropical_Rain_Forest -> Color.DarkSlateGray
         | LandTile.Tropical_Seasonal_Forest -> Color.SeaGreen
         | LandTile.Subtropical_Desert -> Color.Goldenrod
-        
+
 let debugToColor x =
     match x with
     | _ when x = 0 -> Color.Blue
@@ -32,11 +32,11 @@ let debugToColor x =
     | _ when x = 4 -> Color.Purple
     | _ when x = 5 -> Color.White
     | _ -> Color.Red
-    
+
 let toBlackAndWhite x =
     let x = x * 255.0 |> round |> int
     Color.FromArgb(x, x, x)
-    
+
 let fromRGBMaps x =
     let r, g, b = x
     Color.FromArgb((r * 255.0 |> round |> int), (g * 255.0 |> round |> int), (b * 255.0 |> round |> int))

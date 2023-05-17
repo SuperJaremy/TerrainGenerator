@@ -43,9 +43,8 @@ let private segmentBuilder segment =
 
 let private toProbabilityList segment =
     let biomeSum = List.sumBy snd segment
-    List.map (fun (x, y) -> x, (y / (biomeSum |> float))) segment
-    |> segmentBuilder
-    
+    List.map (fun (x, y) -> x, (y / (biomeSum |> float))) segment |> segmentBuilder
+
 let chooseTile segment num =
     let _, tile =
         List.fold
@@ -57,7 +56,7 @@ let chooseTile segment num =
             (toProbabilityList segment)
 
     tile
-    
+
 let biomeSegment =
     [ TerrainTile.Water(WaterTile.Water), 2.
       TerrainTile.Land(LandTile.Grassland), 3.
@@ -66,14 +65,19 @@ let biomeSegment =
       TerrainTile.Land(LandTile.Snow), 1. ]
 
 let landSegment =
-    [TerrainTile.Land(LandTile.Subtropical_Desert), 2.
-     TerrainTile.Land(LandTile.Grassland), 3.
-     TerrainTile.Land(LandTile.Tropical_Seasonal_Forest), 3.
-     TerrainTile.Land(LandTile.Tundra), 2.
-     TerrainTile.Land(LandTile.Snow), 1.]
+    [ TerrainTile.Land(LandTile.Subtropical_Desert), 2.
+      TerrainTile.Land(LandTile.Grassland), 3.
+      TerrainTile.Land(LandTile.Tropical_Seasonal_Forest), 3.
+      TerrainTile.Land(LandTile.Tundra), 2.
+      TerrainTile.Land(LandTile.Snow), 1. ]
 
 let TerrainTable =
-    [ [ Land(Subtropical_Desert); Land(Grassland); Water(WaterTile.Water); Water(WaterTile.Water); Water(WaterTile.Water); Water(WaterTile.Water) ]
+    [ [ Land(Subtropical_Desert)
+        Land(Grassland)
+        Water(WaterTile.Water)
+        Water(WaterTile.Water)
+        Water(WaterTile.Water)
+        Water(WaterTile.Water) ]
       (List.map
           Land
           [ Subtropical_Desert

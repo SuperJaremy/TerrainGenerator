@@ -65,7 +65,7 @@ let generateTerrainWithLandWaterDivisionAndProbabilityRiverGenerator
         Util.foldiArray2D
             (fun x y state elem ->
                 match elem with
-                | Tiles.TerrainTile.Land _ -> (x,y) :: state
+                | Tiles.TerrainTile.Land _ -> (x, y) :: state
                 | _ -> state)
             []
             landWater
@@ -86,7 +86,7 @@ let generateTerrainWithLandWaterDivisionAndProbabilityRiverGenerator
 
 let generateTerrainWithBiomeSegmentAndProbabilityRiverGenerator biomeSegment biomeMap riverCnt seed clean =
     let gen = BiomeGeneration.generateBiomesFromBiomeSegment biomeSegment biomeMap
-    
+
     let prg =
         RiverGenerator.probabilityRiverGenerator RiverGenerator.logProbability (Random(seed))
 
@@ -94,7 +94,7 @@ let generateTerrainWithBiomeSegmentAndProbabilityRiverGenerator biomeSegment bio
         Util.foldiArray2D
             (fun x y state elem ->
                 match elem with
-                | Tiles.TerrainTile.Land _ -> (x,y) :: state
+                | Tiles.TerrainTile.Land _ -> (x, y) :: state
                 | _ -> state)
             []
             gen
