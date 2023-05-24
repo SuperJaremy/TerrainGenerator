@@ -164,7 +164,7 @@ let isSnow (_, tile, _) =
 let blankRiverGenerator _ _ map = map
 
 let rec private generateNRivers generator (rng: Random) rivers points map =
-    if rivers = 0 then
+    if rivers = 0 || (List.length points) = 0 then
         map
     else
         let rand = rng.Next(0, List.length points)
