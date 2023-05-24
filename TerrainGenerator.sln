@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TerrainGenerator", "TerrainGenerator\TerrainGenerator.fsproj", "{5F4A746D-BCD8-4AC5-8E99-BDB45CAC6E05}"
-EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Visualizer", "Visualizer\Visualizer.fsproj", "{21A1977D-ECFD-490C-8D3A-256F50401083}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "TerrainGenerator", "TerrainGenerator\TerrainGenerator.fsproj", "{C50D59D9-DACF-4565-95F6-029B5525CE19}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -10,13 +10,13 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{5F4A746D-BCD8-4AC5-8E99-BDB45CAC6E05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F4A746D-BCD8-4AC5-8E99-BDB45CAC6E05}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5F4A746D-BCD8-4AC5-8E99-BDB45CAC6E05}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5F4A746D-BCD8-4AC5-8E99-BDB45CAC6E05}.Release|Any CPU.Build.0 = Release|Any CPU
 		{21A1977D-ECFD-490C-8D3A-256F50401083}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{21A1977D-ECFD-490C-8D3A-256F50401083}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{21A1977D-ECFD-490C-8D3A-256F50401083}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{21A1977D-ECFD-490C-8D3A-256F50401083}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C50D59D9-DACF-4565-95F6-029B5525CE19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C50D59D9-DACF-4565-95F6-029B5525CE19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C50D59D9-DACF-4565-95F6-029B5525CE19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C50D59D9-DACF-4565-95F6-029B5525CE19}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
